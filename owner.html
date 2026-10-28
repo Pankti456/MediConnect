@@ -1,0 +1,463 @@
+ 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pharmacy Owner Registration | MediConnect</title>
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    .owner-page {
+      padding: 45px 20px 60px;
+      background: #F8F0E5;
+    }
+
+    .owner-heading {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .owner-heading h1 {
+      font-size: clamp(2rem, 4vw, 2.8rem);
+      margin-bottom: 12px;
+    }
+
+    .owner-heading p {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .owner-form {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 32px;
+      background: #FFFDF9;
+      border: 1px solid #E8D8C8;
+      border-radius: 18px;
+      box-shadow: 0 8px 24px rgba(99, 58, 43, 0.09);
+    }
+
+    .owner-form .form-group {
+      margin-bottom: 19px;
+    }
+
+    .owner-form label {
+      display: block;
+      margin-bottom: 7px;
+      color: #633A2B;
+      font-weight: 600;
+    }
+
+    .owner-form input {
+      width: 100%;
+      min-height: 46px;
+      padding: 11px 13px;
+      border: 1px solid #E8D8C8;
+      border-radius: 9px;
+      background: #FFFFFF;
+      color: #332B27;
+    }
+
+    .owner-form input:focus {
+      outline: 2px solid rgba(166, 83, 54, 0.2);
+      border-color: #A65336;
+    }
+
+    .owner-hours {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .owner-submit {
+      width: 100%;
+      margin-top: 8px;
+    }
+
+    .owner-note {
+      text-align: center;
+      font-size: 0.88rem;
+      margin-top: 16px;
+    }
+
+    @media (max-width: 520px) {
+      .owner-form {
+        padding: 22px 18px;
+      }
+
+      .owner-hours {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="navbar">
+    <a href="index.html" class="logo">
+      <span class="logo-icon">✚</span>
+      MediConnect
+    </a>
+
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="pharmacies.html">Pharmacies</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+      <a href="owner.html">Pharmacy Owner</a>
+    </nav>
+  </header>
+
+  <main class="owner-page">
+    <div class="owner-heading">
+      <span class="eyebrow">Join Our Network</span>
+      <h1>Pharmacy Owner Registration</h1>
+      <p>Register your pharmacy with MediConnect and help people
+        discover nearby pharmacies.</p>
+    </div>
+
+    <form class="owner-form" id="ownerForm">
+
+      <div class="form-group">
+        <label for="ownerName">Owner Name</label>
+        <input type="text" id="ownerName" name="ownerName"
+          placeholder="Enter owner's full name" required>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email"
+          placeholder="Enter email address" required>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password"
+          placeholder="Create a password" minlength="8" required>
+      </div>
+
+      <div class="form-group">
+        <label for="pharmacyName">Pharmacy Name</label>
+        <input type="text" id="pharmacyName" name="pharmacyName"
+          placeholder="Enter pharmacy name" required>
+      </div>
+
+      <div class="form-group">
+        <label for="address">Address</label>
+        <input type="text" id="address" name="address"
+          placeholder="Enter complete pharmacy address" required>
+      </div>
+
+      <div class="form-group">
+        <label for="area">Area / Locality</label>
+        <input type="text" id="area" name="area"
+          placeholder="Enter area or locality" required>
+      </div>
+
+      <div class="form-group">
+        <label for="contact">Contact Number</label>
+        <input type="tel" id="contact" name="contact"
+          placeholder="Enter contact number" required>
+      </div>
+
+<div class="form-group">
+  <label>Choose Pharmacy Location</label>
+  
+<button type="button" id="useCurrentLocation"
+  class="primary-button"
+  style="width: 100%; margin: 10px 0;">
+  Use My Current Location
+</button>
+
+<p id="currentLocationMessage"></p>
+
+<div style="display: flex; gap: 8px; margin-bottom: 12px;">
+  <input
+    type="text"
+    id="locationSearch"
+    placeholder="Enter pharmacy address or area"
+    style="flex: 1; min-width: 0;"
+  >
+  <button type="button" id="searchLocationButton"
+    class="primary-button">
+    Search
+  </button>
+</div>
+
+<p id="locationSearchMessage"></p>
+
+  <p>Select the exact location of your pharmacy on the map.</p>
+
+  <div id="pharmacyMap" style="
+    height: 300px;
+    width: 100%;
+    border-radius: 12px;
+    border: 1px solid #E8D8C8;
+    margin-bottom: 12px;">
+  </div>
+
+  <label for="latitude">Latitude</label>
+  <input
+    type="text"
+    id="latitude"
+    name="latitude"
+    placeholder="Select a location on the map"
+    readonly
+  >
+
+  <label for="longitude">Longitude</label>
+  <input
+    type="text"
+    id="longitude"
+    name="longitude"
+    placeholder="Select a location on the map"
+    readonly
+  >
+</div>
+
+      <div class="owner-hours">
+        <div class="form-group">
+          <label for="opening">Opening Hours</label>
+          <input type="time" id="opening" name="opening" required>
+        </div>
+
+        <div class="form-group">
+          <label for="closing">Closing Hours</label>
+          <input type="time" id="closing" name="closing" required>
+        </div>
+      </div>
+
+      <button type="submit" class="primary-button owner-submit">
+        Submit Registration
+      </button>
+
+      <p class="owner-note" id="formMessage">
+        Please fill in all details.
+      </p>
+
+    </form>
+  </main>
+
+  <footer>
+    <p>© 2026 MediConnect. Connecting people with nearby pharmacies.</p>
+  </footer>
+  <link rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+<script>
+  const supabaseUrl = "https://nspaqfxhpsinsuthkpap.supabase.co";
+
+  const supabaseKey = "sb_publishable_0TWw2N5ARJ3LCh6aDXw9Kw_GWDstqZi";
+
+  const supabaseClient = window.supabase.createClient(
+    supabaseUrl,
+    supabaseKey
+  );
+  
+document.getElementById("useCurrentLocation").addEventListener("click", function() {
+  const message = document.getElementById("currentLocationMessage");
+
+  if (!navigator.geolocation) {
+    message.textContent = "Location is not supported by this browser.";
+    return;
+  }
+
+  message.textContent = "Getting your location...";
+
+  navigator.geolocation.getCurrentPosition(
+    function(position) {
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+
+      document.getElementById("latitude").value = latitude.toFixed(6);
+      document.getElementById("longitude").value = longitude.toFixed(6);
+
+      map.setView([latitude, longitude], 17);
+
+      if (pharmacyMarker) {
+        pharmacyMarker.setLatLng([latitude, longitude]);
+      } else {
+        pharmacyMarker = L.marker([latitude, longitude]).addTo(map);
+      }
+
+      message.textContent =
+        "Location found! Check that the marker is on your pharmacy.";
+    },
+    function(error) {
+      message.textContent =
+        "Could not get location. Allow location permission or select it on the map.";
+    },
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+});
+
+
+  const ownerForm = document.getElementById("ownerForm");
+  const formMessage = document.getElementById("formMessage");
+
+  const map = L.map("pharmacyMap").setView([22.3039, 70.8022], 13);
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "&copy; OpenStreetMap contributors"
+  }).addTo(map);
+
+  let pharmacyMarker;
+
+  map.on("click", function(event) {
+    const latitude = event.latlng.lat.toFixed(6);
+    const longitude = event.latlng.lng.toFixed(6);
+
+    document.getElementById("latitude").value = latitude;
+    document.getElementById("longitude").value = longitude;
+
+    if (pharmacyMarker) {
+      pharmacyMarker.setLatLng(event.latlng);
+    } else {
+      pharmacyMarker = L.marker(event.latlng).addTo(map);
+    }
+  });
+
+document.getElementById("searchLocationButton").addEventListener("click", async function() {
+  const query = document.getElementById("locationSearch").value.trim();
+  const message = document.getElementById("locationSearchMessage");
+  const button = this;
+
+  if (!query) {
+    message.textContent = "Please enter a pharmacy address or area.";
+    return;
+  }
+
+  button.disabled = true;
+  message.textContent = "Searching location...";
+
+  try {
+    const url = "https://nominatim.openstreetmap.org/search?format=json&limit=1&q="
+      + encodeURIComponent(query);
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error("Location search is temporarily unavailable.");
+    }
+
+    const results = await response.json();
+
+    if (results.length === 0) {
+      message.textContent = "Location not found. Try a more complete address.";
+      return;
+    }
+
+    const place = results[0];
+    const latitude = Number(place.lat);
+    const longitude = Number(place.lon);
+
+    map.setView([latitude, longitude], 16);
+
+    document.getElementById("latitude").value = latitude.toFixed(6);
+    document.getElementById("longitude").value = longitude.toFixed(6);
+
+    if (pharmacyMarker) {
+      pharmacyMarker.setLatLng([latitude, longitude]);
+    } else {
+      pharmacyMarker = L.marker([latitude, longitude]).addTo(map);
+    }
+
+    message.textContent =
+      "Location found. Check the map and adjust the marker if needed.";
+
+  } catch (error) {
+    message.textContent = error.message;
+  } finally {
+    button.disabled = false;
+  }
+});
+
+  ownerForm.addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    const ownerName = document.getElementById("ownerName").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const pharmacyName = document.getElementById("pharmacyName").value.trim();
+    const address = document.getElementById("address").value.trim();
+    const area = document.getElementById("area").value.trim();
+    const phone = document.getElementById("contact").value.trim();
+    const opening = document.getElementById("opening").value;
+    const closing = document.getElementById("closing").value;
+    const latitudeValue = document.getElementById("latitude").value;
+const longitudeValue = document.getElementById("longitude").value;
+
+if (!latitudeValue || !longitudeValue) {
+  formMessage.textContent =
+    "Please select the pharmacy location before registering.";
+  return;
+}
+
+    formMessage.textContent = "Registering... Please wait.";
+
+    try {
+      const { data, error } = await supabaseClient.auth.signUp({
+        email: email,
+        password: password
+      });
+
+      if (error) throw error;
+
+      const { error: insertError } = await supabaseClient
+        .from("pharmacy_owners")
+        .insert({
+          owner_name: ownerName,
+          email: email,
+          phone: phone,
+          pharmacy_name: pharmacyName,
+          address: address,
+          area_locality: area,
+          opening_hours: opening,
+          closing_hours: closing,
+          latitude: Number(document.getElementById("latitude").value),
+          longitude: Number(document.getElementById("longitude").value)
+        });
+
+      if (insertError) throw insertError;
+      
+const { error: directoryError } = await supabaseClient
+  .from("pharmacy_directory")
+  .insert({
+    pharmacy_name: pharmacyName,
+    address: address,
+    area_locality: area,
+    opening_hours: opening,
+    closing_hours: closing,
+    latitude: Number(document.getElementById("latitude").value),
+    longitude: Number(document.getElementById("longitude").value)
+  });
+
+if (directoryError) throw directoryError;
+
+
+      ownerForm.reset();
+
+      if (data.session) {
+        formMessage.textContent =
+          "Registration successful! Your pharmacy details have been saved.";
+      } else {
+        formMessage.textContent =
+          "Registration submitted! Check your email if confirmation is required.";
+      }
+
+    } catch (error) {
+      console.error("Registration error:", error);
+      formMessage.textContent =
+        "Registration failed: " + error.message;
+    }
+  });
+</script>
+
+</body>
+</html>

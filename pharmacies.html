@@ -1,0 +1,340 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediConnect | Nearby Pharmacies</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="navbar">
+    <a href="index.html" class="logo">
+        <span class="logo-icon">✚</span>
+        MediConnect
+    </a>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="pharmacies.html">Pharmacies</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="owner.html">Pharmacy Owner</a>
+    </nav>
+</header>
+
+<main>
+    <section class="directory section">
+
+        <div class="section-heading">
+            <p class="eyebrow">YOUR LOCAL PHARMACY DIRECTORY</p>
+            <h1>Find Nearby Pharmacies</h1>
+            <p>Discover pharmacies around your location with ease.</p>
+        </div>
+
+        <div class="location-panel">
+
+            <div class="location-heading">
+                <span class="location-icon"></span>
+                <h2>Find Pharmacies Near You</h2>
+                <p>Share your location to explore nearby pharmacies.</p>
+            </div>
+
+            <button type="button" id="locationButton"
+                    class="primary-button">
+                📍 Use My Live Location
+            </button>
+
+            <p id="locationMessage" class="location-message"
+               role="status" aria-live="polite">
+                Your location has not been selected yet.
+            </p>
+
+            <div class="form-divider"></div>
+
+
+           
+<div class="search-controls">
+    <label for="medicineInput">Search Medicine</label>
+
+    <input
+        type="search"
+        id="medicineInput"
+        placeholder="Type a medicine name..."
+        autocomplete="off"
+        list="medicineSuggestions"
+    >
+
+    <datalist id="medicineSuggestions">
+        <option value="Paracetamol"></option>
+        <option value="Cetirizine"></option>
+        <option value="Amoxicillin"></option>
+        <option value="Azithromycin"></option>
+        <option value="Ibuprofen"></option>
+        <option value="ORS"></option>
+        <option value="Omeprazole"></option>
+        <option value="Metformin"></option>
+        <option value="Vitamin C"></option>
+        <option value="Calcium"></option>
+    </datalist>
+
+    <p class="help-text">
+        Choose a medicine suggestion or type its name.
+        Suggestions do not confirm pharmacy stock.
+    </p>
+</div>
+
+
+            <div class="search-controls">
+                <p class="control-label">Choose Search Distance</p>
+
+                <div class="distance-options">
+                    <label>
+                        <input type="radio" name="distance" value="2">
+                        <span>2 km</span>
+                    </label>
+
+                    <label>
+                        <input type="radio" name="distance"
+                               value="3" checked>
+                        <span>3 km</span>
+                    </label>
+
+                    <label>
+                        <input type="radio" name="distance" value="4">
+                        <span>4 km</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="distance" value="6">
+                        <span>6 km</span>
+                    </label>
+                </div>
+            </div>
+
+        </div>
+
+        <section class="results-section">
+            <p class="eyebrow">LOCAL DIRECTORY</p>
+            <h2>Nearby Pharmacy Results</h2>
+            <p id="resultsMessage" role="status" aria-live="polite">
+                Share your live location to begin your search.
+            </p>
+            <div id="pharmacyResults" class="pharmacy-grid"></div>
+        </section>
+
+    </section>
+</main>
+
+<footer>
+    <a href="index.html" class="logo footer-logo">
+        <span class="logo-icon">✚</span>
+        MediConnect
+    </a>
+    <p>Student Project Prototype · Pharmacy Information Directory</p>
+    <p>© 2026 MediConnect</p>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+<script>
+const SUPABASE_URL = "https://nspaqfxhpsinsuthkpap.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_0TWw2N5ARJ3LCh6aDXw9Kw_GWDstqZi";
+
+const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+);
+
+const locationButton = document.getElementById("locationButton");
+const locationMessage = document.getElementById("locationMessage");
+const medicineInput = document.getElementById("medicineInput");
+const resultsMessage = document.getElementById("resultsMessage");
+const pharmacyResults = document.getElementById("pharmacyResults");
+
+const distanceRadios = document.querySelectorAll(
+    'input[name="distance"]'
+);
+
+let userLatitude = null;
+let userLongitude = null;
+let pharmacies = [];
+
+function getSelectedDistance() {
+    const selected = document.querySelector(
+        'input[name="distance"]:checked'
+    );
+    return selected ? Number(selected.value) : 3;
+}
+
+function calculateDistance(lat1, lon1, lat2, lon2) {
+    const toRadians = value => value * Math.PI / 180;
+    const earthRadius = 6371;
+
+    const dLat = toRadians(lat2 - lat1);
+    const dLon = toRadians(lon2 - lon1);
+
+    const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(toRadians(lat1)) *
+        Math.cos(toRadians(lat2)) *
+        Math.sin(dLon / 2) ** 2;
+
+    return 2 * earthRadius *
+        Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+async function loadPharmacies() {
+    resultsMessage.textContent = "Loading pharmacy directory...";
+    pharmacyResults.replaceChildren();
+
+    const { data, error } = await supabaseClient
+        .from("pharmacy_directory")
+        .select(
+            "id, pharmacy_name, address, area_locality, opening_hours, closing_hours, latitude, longitude"
+        );
+
+    if (error) {
+        console.error("Pharmacy directory error:", error);
+        resultsMessage.textContent =
+            "Could not load pharmacies. Please try again.";
+        return;
+    }
+
+    pharmacies = data || [];
+    updateSearchResults();
+}
+
+function updateSearchResults() {
+    pharmacyResults.replaceChildren();
+
+    if (userLatitude === null || userLongitude === null) {
+        resultsMessage.textContent =
+            "Share your live location to find nearby pharmacies.";
+        return;
+    }
+
+    const radius = getSelectedDistance();
+
+    const nearby = pharmacies
+        .map(pharmacy => ({
+            ...pharmacy,
+            distance: calculateDistance(
+                userLatitude,
+                userLongitude,
+                Number(pharmacy.latitude),
+                Number(pharmacy.longitude)
+            )
+        }))
+        .filter(pharmacy => pharmacy.distance <= radius)
+        .sort((a, b) => a.distance - b.distance);
+
+    if (nearby.length === 0) {
+        resultsMessage.textContent =
+            `No registered pharmacies found within ${radius} km. Try a larger radius.`;
+        return;
+    }
+
+    resultsMessage.textContent =
+        `${nearby.length} pharmacy/pharmacies found within ${radius} km.`;
+
+    nearby.forEach(pharmacy => {
+        const card = document.createElement("article");
+        card.className = "pharmacy-card";
+
+        const name = document.createElement("h3");
+        name.textContent = pharmacy.pharmacy_name || "Pharmacy";
+
+        const address = document.createElement("p");
+        address.textContent =
+            "Address: " + (pharmacy.address || "Not provided");
+
+        const area = document.createElement("p");
+        area.textContent =
+            "Area: " + (pharmacy.area_locality || "Not provided");
+
+        const distance = document.createElement("p");
+        distance.textContent =
+            "Distance: " + pharmacy.distance.toFixed(2) + " km";
+
+        const hours = document.createElement("p");
+        hours.textContent =
+            "Opening hours: " +
+            (pharmacy.opening_hours || "Not provided") +
+            " – " +
+            (pharmacy.closing_hours || "Not provided");
+
+        const mapLink = document.createElement("a");
+        mapLink.textContent = "Get Directions";
+        mapLink.href =
+            "https://www.google.com/maps/dir/?api=1&origin=" +
+            encodeURIComponent(`${userLatitude},${userLongitude}`) +
+            "&destination=" +
+            encodeURIComponent(
+                `${pharmacy.latitude},${pharmacy.longitude}`
+            );
+        mapLink.target = "_blank";
+        mapLink.rel = "noopener noreferrer";
+
+        card.append(name, address, area, distance, hours, mapLink);
+        pharmacyResults.appendChild(card);
+    });
+}
+
+locationButton.addEventListener("click", function () {
+    if (!navigator.geolocation) {
+        locationMessage.textContent =
+            "Location is not supported by this browser.";
+        return;
+    }
+
+    locationButton.disabled = true;
+    locationButton.textContent = "Getting Your Location...";
+    locationMessage.textContent =
+        "Please allow location access in your browser.";
+
+    navigator.geolocation.getCurrentPosition(
+        function (position) {
+            userLatitude = position.coords.latitude;
+            userLongitude = position.coords.longitude;
+
+            locationMessage.textContent =
+                "Your location was received successfully.";
+            locationButton.textContent = "✓ Location Received";
+            locationButton.disabled = false;
+
+            updateSearchResults();
+        },
+        function (error) {
+            locationButton.disabled = false;
+            locationButton.textContent = "📍 Try Live Location Again";
+
+            locationMessage.textContent =
+                error.code === error.PERMISSION_DENIED
+                    ? "Location permission denied. Allow it in browser settings."
+                    : "Could not get your location. Please try again.";
+        },
+        {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 0
+        }
+    );
+});
+
+distanceRadios.forEach(radio => {
+    radio.addEventListener("change", updateSearchResults);
+});
+
+medicineInput.addEventListener("input", function () {
+    if (userLatitude !== null && userLongitude !== null) {
+        updateSearchResults();
+    }
+});
+
+loadPharmacies();
+</script>
+
+</body>
+</html>
+```

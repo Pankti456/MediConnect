@@ -1,0 +1,142 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us | MediConnect</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<!-- Navigation -->
+    <header class="navbar">
+        <a href="index.html" class="logo">
+            <span class="logo-icon">✚</span>
+            MediConnect
+        </a>
+
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="pharmacies.html">Pharmacies</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+            <a href="owner.html">Pharmacy Owner</a>
+        </nav>
+    </header>
+
+    <!-- Contact Section -->
+    <main>
+        <section class="contact-section">
+            <h1>Contact Us</h1>
+
+            <p>
+                Have a question or suggestion about MediConnect?
+                We would love to hear from you.
+            </p>
+
+            <form id="contactForm">
+                <label for="name">Full Name</label>
+                <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    placeholder="Enter your full name"
+                    required
+                >
+
+                <label for="email">Email Address</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="Enter your email address"
+                    required
+                >
+
+                <label for="subject">Subject</label>
+                <input
+                    type="text"
+                    id="subject"
+                    name="subject"
+                    placeholder="Enter subject"
+                    required
+                >
+
+                <label for="message">Your Message</label>
+                <textarea
+                    id="message"
+                    name="message"
+                    rows="5"
+                    placeholder="Write your message here"
+                    required
+                ></textarea>
+
+                <button type="submit">Send Message</button>
+            </form>
+
+            <p id="formMessage"></p>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 MediConnect. All rights reserved.</p>
+    </footer>
+    
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL = "https://nspaqfxhpsinsuthkpap.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_0TWw2N5ARJ3LCh6aDXw9Kw_GWDstqZi";
+
+const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+);
+</script>
+
+<script>
+document.getElementById("contactForm").addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    const formMessage = document.getElementById("formMessage");
+    const submitButton = this.querySelector('button[type="submit"]');
+
+    const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const subject = document.getElementById("subject").value.trim();
+    const message = document.getElementById("message").value.trim();
+
+    if (!name || !email || !subject || !message) {
+        formMessage.textContent = "Please fill in all fields.";
+        return;
+    }
+
+    submitButton.disabled = true;
+    submitButton.textContent = "Sending...";
+    formMessage.textContent = "";
+
+    try {
+        const { error } = await supabaseClient
+            .from("contact_messages")
+            .insert([{ name, email, subject, message }]);
+
+        if (error) throw error;
+
+        formMessage.textContent =
+            "Thank you! Your message has been submitted successfully.";
+
+        this.reset();
+    } catch (error) {
+        console.error("Contact form error:", error);
+        formMessage.textContent =
+            "Sorry, your message could not be sent. Please try again.";
+    } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = "Send Message";
+    }
+});
+</script>
+
+</body>
+</html>
